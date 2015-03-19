@@ -1,0 +1,6 @@
+<resources>
+    <dimen name="margin_vertical">4dp</dimen>
+    <dimen name="margin_horizontal">8dp</dimen>
+    <dimen name="image_width">250dp</dimen>
+    <dimen name="image_height">125dp</dimen>
+</resources>
