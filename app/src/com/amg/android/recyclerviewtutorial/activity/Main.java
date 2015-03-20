@@ -42,10 +42,11 @@ public class Main extends ActionBarActivity {
                                  Bundle savedInstanceState) {
             View rootView = inflater.inflate(R.layout.fragment_list, container, false);
 
-            /* Step 2 - Add RecyclerView */
+            final RecyclerView recyclerView = (RecyclerView)rootView.findViewById(R.id.list);
+            recyclerView.setLayoutManager(new StaggeredGridLayoutManager(2,StaggeredGridLayoutManager.VERTICAL));
 
-            /* Step 6 - Add RecyclerView Adapter  */
-
+            final ListAdapter listAdapter = new ListAdapter();
+            recyclerView.setAdapter(listAdapter);
 
             imgurClient = ImgurClient.getInstance(getActivity().getApplicationContext());
             imgurClient.getCatGallery(new ImgurClient.ImgurClientInterface() {
@@ -53,7 +54,7 @@ public class Main extends ActionBarActivity {
                 public void onPostExecute(boolean success) {
                     List<ImgurImage> images = imgurClient.getImgurImages();
                     if (success && images != null) {
-                        /* Step 7 - Add list to RecyclerView Adapter */
+                        listAdapter.setList(images);
                     }
                 }
             });
@@ -61,11 +62,52 @@ public class Main extends ActionBarActivity {
             return rootView;
         }
 
-        /* Step 4 - Create RecyclerView ViewHolder  */
+        private class ListViewHolder extends RecyclerView.ViewHolder {
+
+            private NetworkImageView imageView;
+            private TextView titleView;
+
+            public ListViewHolder(View view){
+                super(view);
+                imageView = (NetworkImageView)view.findViewById(R.id.image);
+                titleView = (TextView)view.findViewById(R.id.title);
+            }
+
+            public void populateFrom(ImgurImage imgurImage){
+                imageView.setImageUrl(imgurImage.getLink(),imgurClient.getImageLoader());
+                titleView.setText(imgurImage.getTitle());
+            }
+        }
 
 
+        private class ListAdapter extends RecyclerView.Adapter<ListViewHolder>{
 
-        /* Step 5 - Create RecyclerView Adapter Class  */
+            private List <ImgurImage> imgurImages;
 
+            public ListAdapter(){ }
+
+            public void setList(List<ImgurImage> images){
+                imgurImages = images;
+                notifyDataSetChanged();
+            }
+
+            @Override
+            public int getItemCount() {
+                return imgurImages == null?0:imgurImages.size();
+            }
+
+            @Override
+            public ListViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+                final View view = LayoutInflater.from(getActivity()).inflate(R.layout.card_view, parent, false);
+                return new ListViewHolder(view);
+
+            }
+
+            @Override
+            public void onBindViewHolder(ListViewHolder holder, int position) {
+                holder.populateFrom(imgurImages.get(position));
+            }
+
+        }
     }
 }
